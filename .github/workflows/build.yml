@@ -44,16 +44,8 @@ jobs:
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             export KCONFIG_CONFIG="aosc-os-abbs/runtime-kernel/linux-kernel/autobuild/loongarch64/config"
-            apt update; apt install sudo git fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev dwarves bison -y
+            apt update; apt install sudo git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev dwarves bison -y
             git config --global --add safe.directory /work
-
-            # Applying patches
-            pushd linux
-            for patch_file in ../aosc-os-abbs/runtime-kernel/linux-kernel/autobuild/patches/*
-            do
-                patch -p1 < "$patch_file"
-            done
-            popd
 
             # Prepare env
             pushd linux
@@ -67,7 +59,7 @@ jobs:
 
             # Build deb
             scripts/config --file $KCONFIG_CONFIG
-            make -j$jobs LLVM=1 KDEB_PKGVERSION='$lv$pv$xv-$rv~$dv.g$git' bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
+            make -j$jobs KDEB_PKGVERSION='$lv$pv$xv-$rv~$dv.g$git' bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
             popd
 
             # Prepare artifact
