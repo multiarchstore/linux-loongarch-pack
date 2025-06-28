@@ -52,7 +52,7 @@ jobs:
             # Prepare env
             pushd linux
             export lv=$(make -s kernelversion)
-            export xv="-aosc-main"
+            export xv="-for-debian"
             export rv=0
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
@@ -61,7 +61,7 @@ jobs:
 
             # Build deb
             scripts/config --file $KCONFIG_CONFIG --refresh
-            make -j$jobs ARCH=loongarch KDEB_PKGVERSION='$lv$pv$xv-$rv~$dv.g$git' bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
+            make -j$jobs ARCH=loongarch KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
             popd
 
             # Prepare artifact
