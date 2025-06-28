@@ -61,7 +61,7 @@ jobs:
 
             # Build deb
             scripts/config --file $KCONFIG_CONFIG --refresh
-            make -j$jobs KDEB_PKGVERSION='$lv$pv$xv-$rv~$dv.g$git' bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
+            make -j$jobs ARCH=loongarch KDEB_PKGVERSION='$lv$pv$xv-$rv~$dv.g$git' bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
             popd
 
             # Prepare artifact
