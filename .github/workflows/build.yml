@@ -13,6 +13,7 @@ jobs:
   debian:
     name: Build loong64 iso
     runs-on: ubuntu-latest
+    container: docker.io/library/debian:trixie
     permissions: write-all
     steps:
       - name: Maximize build space
@@ -34,9 +35,13 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           export KCONFIG_CONFIG="${{ github.workspace }}/aosc-os-abbs/runtime-kernel/linux-kernel/autobuild/loongarch64/config"
-          sudo add-apt-repository -y ppa:elysiabest/ppa
+          apt install sudo debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
+
+          # loong64
+          echo "deb [trusted=yes arch=loong64] http://deb.debian.org/debian-ports sid main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-sid-loong64.list
+          sudo dpkg --add-architecture loong64
           sudo apt update
-          sudo apt install sudo devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync gcc-loongarch64-linux-gnu -y
+          sudo apt install gcc-loongarch64-linux-gnu libc6:loong64 libssl-dev:loong64 python3:loong64 gcc-loongarch64-linux-gnu libelf-dev:loong64
 
           # Applying patches
           pushd linux
