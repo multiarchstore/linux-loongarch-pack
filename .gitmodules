@@ -1,7 +1,0 @@
-[submodule "linux"]
-	path = linux
-	url = https://github.com/AOSC-Tracking/linux.git
-	branch = aosc/v6.14.9
-[submodule "aosc-os-abbs"]
-	path = aosc-os-abbs
-	url = https://github.com/AOSC-Dev/aosc-os-abbs

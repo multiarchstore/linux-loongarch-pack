@@ -30,44 +30,63 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - name: Setup loongarch and build
-        shell: bash
+      - name: Get linux kernel source and config
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          export KCONFIG_CONFIG="${{ github.workspace }}/aosc-os-abbs/runtime-kernel/linux-kernel/autobuild/loongarch64/config"
-          apt install sudo debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
+          bash ./get-source.sh
+              
+      - name: Set up loong64 Debian container
+        uses: addnab/docker-run-action@v3
+        with:
+          image: docker.io/library/debian:trixie-slim
+          options: --privileged -v ${{ github.workspace }}:/work
+          shell: bash
+          run: |
+            cd /work
+            export DEBIAN_FRONTEND=noninteractive
+            export KCONFIG_CONFIG="/work/aosc-os-abbs/runtime-kernel/linux-kernel/autobuild/loongarch64/config"
+            apt update
+            apt install sudo python3 qemu-user debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
+            git config --global --add safe.directory /work
+            git config --global --add safe.directory /work/aosc-os-abbs
+            git config --global --add safe.directory /work/linux
 
-          # loong64
-          echo "deb [trusted=yes arch=loong64] http://deb.debian.org/debian-ports sid main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-sid-loong64.list
-          sudo dpkg --add-architecture loong64
-          sudo apt update
-          sudo apt install gcc-loongarch64-linux-gnu libc6:loong64 libssl-dev:loong64 python3:loong64 gcc-loongarch64-linux-gnu libelf-dev:loong64
+            # Prepare binfmt
+            mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
+            curl -fsSL -o /usr/local/bin/systemctl-docker https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/refs/heads/master/files/docker/systemctl3.py
+            chmod +x /usr/local/bin/systemctl-docker
+            /usr/local/bin/systemctl-docker start systemd-binfmt.service
 
-          # Applying patches
-          pushd linux
-          for patch_file in ${{ github.workspace }}/patch/*
-          do
-              patch -p1 < "$patch_file"
-          done
-          popd
+            # loong64
+            echo "deb [trusted=yes arch=loong64] http://deb.debian.org/debian-ports sid main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-sid-loong64.list
+            dpkg --add-architecture loong64
+            apt update
+            apt install gcc-loongarch64-linux-gnu libc6:loong64 libssl-dev:loong64 python3:loong64 gcc-loongarch64-linux-gnu libelf-dev:loong64
 
-          # Prepare env
-          pushd linux
-          export lv=$(make -s kernelversion)
-          export xv="-for-debian"
-          export rv=0
-          export git=$(git rev-parse --short=7 HEAD)
-          export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
-          export jobs=$((2*$(nproc))); echo $jobs
-          pvcmd="cat $KCONFIG_CONFIG | grep 'LOCALVERSION='" && export pv=$(eval $pvcmd | cut -d'"' -f2)
+            # Applying patches
+            pushd linux
+            for patch_file in /work/patch/*
+            do
+                patch -p1 < "$patch_file"
+            done
+            popd
 
-          # Build deb
-          ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- scripts/config --file $KCONFIG_CONFIG --refresh
-          make -j$jobs ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
-          popd
+            # Prepare env
+            pushd linux
+            export lv=$(make -s kernelversion)
+            export xv="-for-debian"
+            export rv=0
+            export git=$(git rev-parse --short=7 HEAD)
+            export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
+            export jobs=$((2*$(nproc))); echo $jobs
+            pvcmd="cat $KCONFIG_CONFIG | grep 'LOCALVERSION='" && export pv=$(eval $pvcmd | cut -d'"' -f2)
 
-          # Prepare artifact
-          mkdir -p assets/ && mv ./*$pv* assets/
+            # Build deb
+            ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- scripts/config --file $KCONFIG_CONFIG --refresh
+            make -j$jobs ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg 2>&1 | tee ../build-$lv$pv$xv-$rv~$dv.g"$git"_amd64.log && xz -e9 ../build-*$pv*
+            popd
+
+            # Prepare artifact
+            mkdir -p assets/ && mv ./*$pv* assets/
 
       - name: Artifact
         uses: actions/upload-artifact@v4
