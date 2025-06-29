@@ -47,8 +47,6 @@ jobs:
             apt update
             apt install sudo python3 qemu-user debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
             git config --global --add safe.directory /work
-            git config --global --add safe.directory /work/aosc-os-abbs
-            git config --global --add safe.directory /work/linux
 
             # Prepare binfmt
             mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
