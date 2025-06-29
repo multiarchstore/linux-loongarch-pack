@@ -13,7 +13,6 @@ jobs:
   debian:
     name: Build loong64 iso
     runs-on: ubuntu-latest
-    container: docker.io/library/debian:trixie
     permissions: write-all
     steps:
       - name: Maximize build space
