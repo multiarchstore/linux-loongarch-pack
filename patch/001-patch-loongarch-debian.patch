@@ -4,7 +4,7 @@
  			debarch=i386
  		fi
  		;;
-+	loongarch)
++	loongarch64)
 +		debarch=loong64
 +		;;
  	esac
@@ -17,9 +17,9 @@
 - kmod, libelf-dev:native,
 - libssl-dev:native, libssl-dev <!pkg.${sourcename}.nokernelheaders>,
 - python3:native, rsync
-+ kmod, libelf-dev,
-+ libssl-dev, libssl-dev <!pkg.${sourcename}.nokernelheaders>,
-+ python3, rsync
++ kmod:amd64, libelf-dev:amd64,
++ libssl-dev:amd64,
++ python3:amd64, rsync:amd64
  Homepage: https://www.kernel.org/
  
  Package: $packagename-$version
