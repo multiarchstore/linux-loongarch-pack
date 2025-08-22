@@ -27,6 +27,7 @@ jobs:
       - name: Build Linux kernel
         run: |
           cd linux
+          rm -rf init/build-version
           cat <<EOF >> init/build-version
           #!/bin/sh
           # SPDX-License-Identifier: GPL-2.0-only
