@@ -14,17 +14,7 @@ jobs:
     runs-on: self-hosted
     name: Build loong64 kernel
     permissions: write-all
-    container: ghcr.io/loong64/debian:trixie
     steps:
-      - name: Install Dependencies
-        run: |
-          export DEBIAN_FRONTEND=noninteractive
-          rm -rf /etc/apt/sources.list
-          rm -rf /etc/apt/sources.list.d/*
-          echo "deb [trusted=yes] https://mirrors.aliyun.com/debian-ports/ sid main contrib non-free" | tee -a /etc/apt/sources.list
-          apt update
-          apt install sudo zstd python3 gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync libc6:loong64 libssl-dev:loong64 python3:loong64 libelf-dev:loong64 -y
-
       - name: Checkout sources
         uses: actions/checkout@v4
         with:
