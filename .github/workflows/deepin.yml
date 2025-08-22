@@ -51,7 +51,15 @@ jobs:
 
           # Build deb
           make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
-          make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- bindeb-pkg -j$(nproc)
+
+          export lv=$(make -s kernelversion)
+          export xv="-elysia"
+          export rv=0
+          export git=$(git rev-parse --short=7 HEAD)
+          export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
+          pvcmd="cat .config | grep 'LOCALVERSION='" && export pv=$(eval $pvcmd | cut -d'"' -f2)
+
+          make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg -j$(nproc)
 
           # Prepare artifact
           cd ..
