@@ -25,6 +25,9 @@ jobs:
 
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Checkout linux sources
+        uses: actions/checkout@v4
         with:
           repository: deepin-community/kernel
           ref: ece8c40f0b46298ed9dac78db41310013015c453
