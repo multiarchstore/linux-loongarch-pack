@@ -83,8 +83,9 @@ jobs:
             chmod +x init/build-version
 
             # Build deb
-            cp ../config .config
-            ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- scripts/config --file .config --refresh
+            mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
+            cp -v ../config arch/loongarch/configs/deepin_loongarch_desktop_defconfig
+            make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
 
             export lv=$(make -s kernelversion)
             export xv="-elysia"
