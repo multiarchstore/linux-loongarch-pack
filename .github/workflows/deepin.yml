@@ -25,9 +25,12 @@ jobs:
 
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Checkout linux sources
+        uses: actions/checkout@v4
         with:
           repository: deepin-community/kernel
-          ref: linux-6.12.y
+          ref: ece8c40f0b46298ed9dac78db41310013015c453
           fetch-depth: 1
           submodules: recursive 
           path: 'linux'
@@ -83,6 +86,8 @@ jobs:
             chmod +x init/build-version
 
             # Build deb
+            mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
+            cp -v ../config arch/loongarch/configs/deepin_loongarch_desktop_defconfig
             make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
 
             export lv=$(make -s kernelversion)
