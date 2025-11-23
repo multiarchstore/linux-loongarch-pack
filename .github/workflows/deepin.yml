@@ -11,8 +11,11 @@ on:
   workflow_dispatch:
 jobs:
   debian:
+    strategy:
+      matrix:
+        mmu-size: ['config-16k', 'config-4k']
     runs-on: ubuntu-latest
-    name: Build loong64 kernel
+    name: Build loong64 kernel ${{ matrix.mmu-size }}
     permissions: write-all
     steps:
       - name: Maximize build space
@@ -86,12 +89,13 @@ jobs:
             chmod +x init/build-version
 
             # Build deb
-            mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
-            cp -v ../config arch/loongarch/configs/deepin_loongarch_desktop_defconfig
-            make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
+            # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
+            # cp -v ../${{ matrix.mmu-size }} arch/loongarch/configs/deepin_loongarch_desktop_defconfig
+            # make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
+            cp -v ../${{ matrix.mmu-size }} .config
 
             export lv=$(make -s kernelversion)
-            export xv="-elysia"
+            export xv="${{ matrix.mmu-size }}"
             export rv=0
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
