@@ -49,7 +49,7 @@ jobs:
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install sudo zstd python3 gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
+            apt install sudo systemd zstd python3 gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
             git config --global --add safe.directory /work/linux
 
             # Prepare binfmt
