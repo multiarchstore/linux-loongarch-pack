@@ -95,7 +95,7 @@ jobs:
             cp -v ../${{ matrix.mmu-size }} .config
 
             export lv=$(make -s kernelversion)
-            export xv="${{ matrix.mmu-size }}"
+            export xv=""
             export rv=0
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
