@@ -92,10 +92,11 @@ jobs:
             # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
             # cp -v ../${{ matrix.mmu-size }} arch/loongarch/configs/deepin_loongarch_desktop_defconfig
             # make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
-            cp -v ../${{ matrix.mmu-size }} .config
-
+            export KCONFIG_CONFIG = ../${{ matrix.mmu-size }}
+            ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- scripts/config --file $KCONFIG_CONFIG --set-str LOCALVERSION -${{ matrix.mmu-size }}
+            
             export lv=$(make -s kernelversion)
-            export xv=""
+            export xv="-deepin1"
             export rv=0
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
