@@ -92,7 +92,7 @@ jobs:
             # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
             # cp -v ../${{ matrix.mmu-size }} arch/loongarch/configs/deepin_loongarch_desktop_defconfig
             # make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- deepin_loongarch_desktop_defconfig
-            export KCONFIG_CONFIG = ../${{ matrix.mmu-size }}
+            export KCONFIG_CONFIG=$(realpath ../${{ matrix.mmu-size }})
             ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- scripts/config --file $KCONFIG_CONFIG --set-str LOCALVERSION -${{ matrix.mmu-size }}
             
             export lv=$(make -s kernelversion)
