@@ -48,13 +48,13 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ghcr.io/loong64/loongnix:25
-          options: --privileged -v ${{ github.workspace }}:/work
+          options: --cpus=4 --platform linux/loong64 --privileged -v ${{ github.workspace }}:/work
           shell: bash
           run: |
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install sudo systemd zstd python3 libdw-dev gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
+            apt install sudo systemd zstd python3 libdw-dev gawk devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
             git config --global --add safe.directory /work/linux
 
             # Prepare env
