@@ -89,6 +89,12 @@ jobs:
             EOF
             chmod +x init/build-version
 
+            # Fix build deps
+            sed -i 's/python3:native/python3/g' scripts/package/mkdebian
+
+            # Fix .git
+            rm -rf .git
+
             # Build deb
             # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
             # cp -v ../${{ matrix.mmu-size }} arch/loongarch/configs/deepin_loongarch_desktop_defconfig
@@ -96,7 +102,7 @@ jobs:
             cp -v ../${{ matrix.mmu-size }} .config
             export KCONFIG_CONFIG=$(realpath ./.config)            
             export lv=$(make -s kernelversion)
-            export xv="-aosc1"
+            export xv=""
             export rv=0
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
