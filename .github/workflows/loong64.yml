@@ -49,7 +49,7 @@ jobs:
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install sudo systemd zstd python3 gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
+            apt install sudo systemd zstd python3 libdw-dev gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
             git config --global --add safe.directory /work/linux
 
             # Prepare binfmt
@@ -63,7 +63,7 @@ jobs:
             dpkg --add-architecture loong64
             wget -O /usr/share/keyrings/debian-trixie-loong64.gpg https://loong13.debian.net/keyrings/debian-trixie-loong64.gpg
             apt update
-            apt install -y gcc-loongarch64-linux-gnu libc6:loong64 libssl-dev:loong64 python3:loong64 libelf-dev:loong64
+            apt install -y gcc-loongarch64-linux-gnu libc6:loong64 libssl-dev:loong64 python3:loong64 libelf-dev:loong64 libdw-dev:loong64
 
             # Prepare env
             pushd linux
