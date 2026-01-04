@@ -92,9 +92,6 @@ jobs:
             # Fix build deps
             sed -i 's/python3:native/python3/g' scripts/package/mkdebian
 
-            # Fix .git
-            rm -rf .git
-
             # Build deb
             # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
             # cp -v ../${{ matrix.mmu-size }} arch/loongarch/configs/deepin_loongarch_desktop_defconfig
