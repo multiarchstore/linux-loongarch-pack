@@ -1,5 +1,5 @@
 
-name: Build Debian loong64 kernel
+name: Build loong64 kernel for Debian
 
 permissions: write-all
 
@@ -32,8 +32,8 @@ jobs:
       - name: Checkout linux sources
         uses: actions/checkout@v4
         with:
-          repository: deepin-community/kernel
-          ref: ea182564565d01670b58c1bda78411480419f8b0
+          repository: AOSC-Tracking/linux
+          ref: 4444b7c5ca7a8cd3e018f4c421b0737159be9ab8
           fetch-depth: 1
           submodules: recursive 
           path: 'linux'
@@ -96,7 +96,7 @@ jobs:
             cp -v ../${{ matrix.mmu-size }} .config
             export KCONFIG_CONFIG=$(realpath ./.config)            
             export lv=$(make -s kernelversion)
-            export xv="-deepin1"
+            export xv="-aosc1"
             export rv=0
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
