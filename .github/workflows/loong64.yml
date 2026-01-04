@@ -1,5 +1,5 @@
 
-name: Build loong64 kernel for Debian
+name: Build loong64 kernel for Debian like system
 
 permissions: write-all
 
@@ -25,6 +25,11 @@ jobs:
           swap-size-mb: 512
           remove-dotnet: 'true'
           remove-android: 'true'
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -39,10 +44,10 @@ jobs:
           path: 'linux'
 
 
-      - name: Set up loong64 Debian container
+      - name: Set up loong64 Loongnix container
         uses: addnab/docker-run-action@v3
         with:
-          image: docker.io/library/debian:trixie
+          image: ghcr.io/loong64/loongnix:25
           options: --privileged -v ${{ github.workspace }}:/work
           shell: bash
           run: |
@@ -52,45 +57,8 @@ jobs:
             apt install sudo systemd zstd python3 libdw-dev gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y
             git config --global --add safe.directory /work/linux
 
-            # Prepare binfmt
-            mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
-            curl -fsSL -o /usr/local/bin/systemctl-docker https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/refs/heads/master/files/docker/systemctl3.py
-            chmod +x /usr/local/bin/systemctl-docker
-            /usr/local/bin/systemctl-docker start systemd-binfmt.service
-
-            # loong64
-            echo "deb [signed-by=/usr/share/keyrings/debian-trixie-loong64.gpg arch=loong64] https://loong13.debian.net/debian-loong64 trixie main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-trixie-loong64.list
-            dpkg --add-architecture loong64
-            wget -O /usr/share/keyrings/debian-trixie-loong64.gpg https://loong13.debian.net/keyrings/debian-trixie-loong64.gpg
-            apt update
-            apt install -y gcc-loongarch64-linux-gnu libc6:loong64 libssl-dev:loong64 python3:loong64 libelf-dev:loong64 libdw-dev:loong64
-
             # Prepare env
             pushd linux
-            rm -rf init/build-version
-            cat <<EOF >> init/build-version
-            #!/bin/sh
-            # SPDX-License-Identifier: GPL-2.0-only
-
-            prev_ver=$(cat .version 2>/dev/null) &&
-            ver=$(expr ${prev_ver} + 1 2>/dev/null) ||
-
-            # Respect $prev_ver as the final build version ID.
-            if [ X$prev_ver = "X" ]
-            then
-              ver=1
-            else
-              ver=$prev_ver
-            fi
-            echo ${ver} > .version
-
-            echo ${ver}
-
-            EOF
-            chmod +x init/build-version
-
-            # Fix build deps
-            sed -i 's/python3:native/python3/g' scripts/package/mkdebian
 
             # Build deb
             # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
@@ -114,7 +82,7 @@ jobs:
       - name: Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: loong64 kernel for Debian ${{ matrix.mmu-size }}
+          name: loong64 kernel deb for ${{ matrix.mmu-size }}
           path: assets/*
           compression-level: 0
           if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
