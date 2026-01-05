@@ -67,30 +67,6 @@ jobs:
 
             # Prepare env
             pushd linux
-            rm -rf init/build-version
-            cat <<EOF >> init/build-version
-            #!/bin/sh
-            # SPDX-License-Identifier: GPL-2.0-only
-
-            prev_ver=$(cat .version 2>/dev/null) &&
-            ver=$(expr ${prev_ver} + 1 2>/dev/null) ||
-
-            # Respect $prev_ver as the final build version ID.
-            if [ X$prev_ver = "X" ]
-            then
-              ver=1
-            else
-              ver=$prev_ver
-            fi
-            echo ${ver} > .version
-
-            echo ${ver}
-
-            EOF
-            chmod +x init/build-version
-
-            # Fix build deps
-            sed -i 's/python3:native/python3/g' scripts/package/mkdebian
 
             # Build deb
             # mv -v arch/loongarch/configs/deepin_loongarch_desktop_defconfig arch/loongarch/configs/deepin_loongarch_desktop_defconfig.old
@@ -104,6 +80,12 @@ jobs:
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
             pvcmd="cat .config | grep 'LOCALVERSION='" && export pv=$(eval $pvcmd | cut -d'"' -f2)
+
+            # Fix build deps
+            sed -i 's/python3:native/python3/g' scripts/package/mkdebian
+            git config --global user.name "Github Actions"
+            git config --global user.email "actions@noreply.github.com"
+            git add . && git commit -m "Update mkdebian for build" --allow-empty
 
             make ARCH=loongarch CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg -j$(nproc)
             popd
