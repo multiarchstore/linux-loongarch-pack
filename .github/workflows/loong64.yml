@@ -32,8 +32,8 @@ jobs:
       - name: Checkout linux sources
         uses: actions/checkout@v4
         with:
-          repository: AOSC-Tracking/linux
-          ref: 4444b7c5ca7a8cd3e018f4c421b0737159be9ab8
+          repository: multiarchstore/linux
+          ref: aa7bb096e5e1a8fdafc004e8ee2877557eb4a8ce
           fetch-depth: 1
           submodules: recursive 
           path: 'linux'
@@ -80,12 +80,6 @@ jobs:
             export git=$(git rev-parse --short=7 HEAD)
             export dv=$(git show -s --date=format:'%Y%m%d' --format=%cd)
             pvcmd="cat .config | grep 'LOCALVERSION='" && export pv=$(eval $pvcmd | cut -d'"' -f2)
-
-            # Fix build deps
-            sed -i 's/python3:native/python3/g' scripts/package/mkdebian
-            git config --global user.name "Github Actions"
-            git config --global user.email "actions@noreply.github.com"
-            git add . && git commit -m "Update mkdebian for build" --allow-empty
 
             make ARCH=loongarch HOSTCC=loongarch64-linux-gnu-gcc HOSTLD=loongarch64-linux-gnu-ld CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg -j$(nproc)
             popd
