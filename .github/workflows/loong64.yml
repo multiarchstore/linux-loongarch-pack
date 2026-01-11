@@ -32,8 +32,8 @@ jobs:
       - name: Checkout linux sources
         uses: actions/checkout@v4
         with:
-          repository: AOSC-Tracking/linux
-          ref: 4444b7c5ca7a8cd3e018f4c421b0737159be9ab8
+          repository: multiarchstore/linux
+          ref: 096039e0a5e450939615ee91c709d9e9730f0ac3
           fetch-depth: 1
           submodules: recursive 
           path: 'linux'
