@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: multiarchstore/linux
-          ref: 80526e914ba73f3dbe9a1ad6172001544c3e171b
+          ref: 21aaae16d2d94b88fdc1310d2de52a99fb7409ed
           fetch-depth: 1
           submodules: recursive 
           path: 'linux'
