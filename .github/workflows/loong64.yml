@@ -42,7 +42,7 @@ jobs:
       - name: Set up loong64 Debian container
         uses: addnab/docker-run-action@v3
         with:
-          image: docker.io/library/debian:trixie
+          image: docker.io/library/debian:13.0
           options: --privileged -v ${{ github.workspace }}:/work
           shell: bash
           run: |
