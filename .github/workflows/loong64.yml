@@ -54,7 +54,7 @@ jobs:
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install sudo systemd zstd libdw-dev gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y --no-install-recommends
+            apt install sudo systemd zstd libdw-dev gawk debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y --no-install-recommends
             git config --global --add safe.directory /work/linux
 
             # Prepare env
@@ -79,7 +79,7 @@ jobs:
             git config --global user.email "actions@noreply.github.com"
             git add . && git commit -m "Update mkdebian for build" --allow-empty
 
-            make ARCH=loongarch HOSTCC=loongarch64-linux-gnu-gcc HOSTLD=loongarch64-linux-gnu-ld CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg -j$(nproc)
+            make ARCH=loongarch bindeb-pkg -j$(nproc)
             popd
 
             # Prepare artifact
