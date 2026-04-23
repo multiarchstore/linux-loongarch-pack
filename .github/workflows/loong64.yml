@@ -38,6 +38,8 @@ jobs:
           submodules: recursive 
           path: 'linux'
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up loong64 Debian container
         uses: addnab/docker-run-action@v3
@@ -46,20 +48,16 @@ jobs:
           options: --privileged -v ${{ github.workspace }}:/work
           shell: bash
           run: |
+            set -euxo pipefail
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install sudo systemd zstd libdw-dev gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y --no-install-recommends
+            apt install sudo systemd zstd libdw-dev gawk devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev dwarves bison debhelper rsync -y --no-install-recommends
             git config --global --add safe.directory /work/linux
-
-            # Prepare binfmt
-            mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
-            curl -fsSL -o /usr/local/bin/systemctl-docker https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/refs/heads/master/files/docker/systemctl3.py
-            chmod +x /usr/local/bin/systemctl-docker
-            /usr/local/bin/systemctl-docker start systemd-binfmt.service
 
             # loong64
             echo "deb [signed-by=/usr/share/keyrings/debian-trixie-loong64.gpg arch=loong64] https://loong13.debian.net/debian-loong64 trixie main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-trixie-loong64.list
+            echo "deb [signed-by=/usr/share/keyrings/debian-trixie-loong64.gpg arch=loong64] http://loong13.debian.net/debian-loong64-security/ trixie-security main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-trixie-security-loong64.list
             dpkg --add-architecture loong64
             wget -O /usr/share/keyrings/debian-trixie-loong64.gpg https://loong13.debian.net/keyrings/debian-trixie-loong64.gpg
             apt update
