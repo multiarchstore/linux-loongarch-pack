@@ -89,8 +89,6 @@ jobs:
             git update-index -q --refresh
             git diff-index --quiet HEAD --
 
-            scripts/config --disable CONFIG_DEBUG_INFO && make olddefconfig
-
             make ARCH=loongarch HOSTCC=loongarch64-linux-gnu-gcc HOSTLD=loongarch64-linux-gnu-ld CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg -j$(nproc)
             popd
 
