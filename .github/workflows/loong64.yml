@@ -25,6 +25,8 @@ jobs:
           swap-size-mb: 512
           remove-dotnet: 'true'
           remove-android: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
 
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -33,11 +35,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: AOSC-Tracking/linux
-          ref: 4444b7c5ca7a8cd3e018f4c421b0737159be9ab8
+          ref: 02920edcd5a8414064f1eefb223cbb1528297ec5
           fetch-depth: 1
           submodules: recursive 
           path: 'linux'
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up loong64 Debian container
         uses: addnab/docker-run-action@v3
@@ -46,20 +50,16 @@ jobs:
           options: --privileged -v ${{ github.workspace }}:/work
           shell: bash
           run: |
+            set -euxo pipefail
             cd /work
             export DEBIAN_FRONTEND=noninteractive
             apt update
-            apt install sudo systemd zstd libdw-dev gawk qemu-user qemu-user-binfmt debian-ports-archive-keyring devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev python3 dwarves bison debhelper rsync -y --no-install-recommends
+            apt install sudo systemd zstd libdw-dev gawk devscripts equivs git xz-utils fakeroot wget curl build-essential bc kmod cpio flex libncurses5-dev libelf-dev libssl-dev dwarves bison debhelper rsync -y --no-install-recommends
             git config --global --add safe.directory /work/linux
-
-            # Prepare binfmt
-            mount binfmt_misc -t binfmt_misc /proc/sys/fs/binfmt_misc
-            curl -fsSL -o /usr/local/bin/systemctl-docker https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/refs/heads/master/files/docker/systemctl3.py
-            chmod +x /usr/local/bin/systemctl-docker
-            /usr/local/bin/systemctl-docker start systemd-binfmt.service
 
             # loong64
             echo "deb [signed-by=/usr/share/keyrings/debian-trixie-loong64.gpg arch=loong64] https://loong13.debian.net/debian-loong64 trixie main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-trixie-loong64.list
+            echo "deb [signed-by=/usr/share/keyrings/debian-trixie-loong64.gpg arch=loong64] http://loong13.debian.net/debian-loong64-security/ trixie-security main contrib non-free non-free-firmware" | sudo tee -a  /etc/apt/sources.list.d/debian-trixie-security-loong64.list
             dpkg --add-architecture loong64
             wget -O /usr/share/keyrings/debian-trixie-loong64.gpg https://loong13.debian.net/keyrings/debian-trixie-loong64.gpg
             apt update
@@ -86,6 +86,8 @@ jobs:
             git config --global user.name "Github Actions"
             git config --global user.email "actions@noreply.github.com"
             git add . && git commit -m "Update mkdebian for build" --allow-empty
+            git update-index -q --refresh
+            git diff-index --quiet HEAD --
 
             make ARCH=loongarch HOSTCC=loongarch64-linux-gnu-gcc HOSTLD=loongarch64-linux-gnu-ld CROSS_COMPILE=loongarch64-linux-gnu- KDEB_PKGVERSION="$lv$pv$xv-$rv~$dv.g$git" bindeb-pkg -j$(nproc)
             popd
